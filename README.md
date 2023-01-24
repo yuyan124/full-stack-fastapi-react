@@ -1,2 +1,5 @@
-# full-stack-fastapi-react
-Full stack, Web App Generator. Using FastApi, React, Docker and more.
+# Full Stack FastAPI and React - Base Project
+
+Generate a backend and frontend using Python and React.
+
+## Features
