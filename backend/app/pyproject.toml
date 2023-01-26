@@ -22,6 +22,7 @@ black = "^19.10b0"
 isort = "^4.3.21"
 pytest = "^5.4.1"
 sqlalchemy-stubs = "^0.3"
+faker = "^8.8.1"
 
 [tool.isort]
 multi_line_output = 3
