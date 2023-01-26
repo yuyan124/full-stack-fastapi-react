@@ -1,20 +1,8 @@
-from app import errors
-from fastapi import FastAPI
 import uvicorn
+from app import carete_app
 
-
-def create_app() -> FastAPI:
-    app = FastAPI()
-    return app
-
-
-app = create_app()
-
-
-@app.get("/")
-def root():
-    return {"message": "Hello World"}
+app = carete_app()
 
 
 if __name__ == "__main__":
-    uvicorn.run(app="main:app", host="127.0.0.1", port=10000)
+    uvicorn.run(app="main:app", host="0.0.0.0", port=10000)
