@@ -1,0 +1,8 @@
+POST http://127.0.0.1:10000/api/v1/user/
+
+{
+  "email": "daniel24@gmail.com",
+  "phone": "001-086-988-8226x1699",
+  "nickname": "Katherine Rogers",
+  "password": "123456"
+}
