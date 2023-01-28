@@ -37,7 +37,7 @@ class Bcrypt(object):
 
     def generate_password_hash(
         self, password: str, rounds: int = None, prefix: bytes = None
-    ):
+    ) -> bytes:
         if not password:
             raise ValueError("Password must be non-empty")
 

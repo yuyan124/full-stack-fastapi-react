@@ -19,10 +19,10 @@ class User(Base):
 
     @password.setter
     def password(self, raw_pwd: str):
-        self._password = generate_password_hash(raw_pwd.encode("utf8"))
+        self._password = str(generate_password_hash(raw_pwd.encode("utf8")))
 
     def check_password(self, raw_pwd: str):
         if not self._password:
             return False
-        password_hash = generate_password_hash(self._password.encode("utf8"))
+        password_hash = str(generate_password_hash(self._password.encode("utf8")))
         return check_password_hash(password_hash, self._password)

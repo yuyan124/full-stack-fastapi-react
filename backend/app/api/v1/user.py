@@ -7,7 +7,7 @@ from faker import Faker
 from fastapi import APIRouter, Depends
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
 
@@ -31,14 +31,12 @@ def read_users() -> JSONResponse:
 
 
 @router.post("/", response_class=schemas.User)
-def create_user(
+async def create_user(
     *,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     user_in: schemas.UserCreate,
 ):
-    print(user_in)
-    user = crud.user.create_user(db, user_in)
-    print(user)
+    user = await crud.user.create_user(db, user_in)
     return JSONResponse(content=jsonable_encoder(user))
 
 

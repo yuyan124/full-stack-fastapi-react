@@ -28,6 +28,15 @@ class Setting(pydantic.BaseSettings):
         host=os.environ["POSTGRES_SERVER"],
         path=f"/{os.environ['POSTGRES_DB'] or ''}",
     )
+    ASYNC_SQLALCHEMY_DATABASE_URI: Optional[
+        pydantic.PostgresDsn
+    ] = pydantic.PostgresDsn.build(
+        scheme="postgresql+asyncpg",
+        user=os.environ["POSTGRES_USER"],
+        password=os.environ["POSTGRES_PASSWORD"],
+        host=os.environ["POSTGRES_SERVER"],
+        path=f"/{os.environ['POSTGRES_DB'] or ''}",
+    )
 
     class Config:
         case_sensitive = True
