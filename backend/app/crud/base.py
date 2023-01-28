@@ -37,7 +37,7 @@ class CrudBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db_obj = self.model(**json_data)
         async with db.begin():
             db.add(db_obj)
-            await db.commit()
+            await db.flush()
             db.expunge(db_obj)
             return db_obj
 
@@ -59,7 +59,7 @@ class CrudBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 setattr(db_model, filed, update_data[filed])
         async with db.begin():
             db.add(db_model)
-            await db.commit()
+            await db.flush()
             db.expunge(db_model)
             return db_model
 
@@ -69,5 +69,5 @@ class CrudBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             r = db.execute(sql)
             original = r.scalars().first()
             db.delete(original)
-            await db.commit()
+            await db.flush()
             return original

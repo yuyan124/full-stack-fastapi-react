@@ -26,11 +26,14 @@ class CrudUser(CrudBase[User, UserCreate, UserUpdate]):
             email=obj_in.email,
             password=obj_in.password,
             nickname=obj_in.nickname,
+            is_superuser=False,
             create_time=int(datetime.now().timestamp()),
         )
+
+        # async with db.begin():
         async with db.begin():
             db.add(db_obj)
-            await db.commit()
+            await db.flush()
             db.expunge(db_obj)
             return db_obj
 
