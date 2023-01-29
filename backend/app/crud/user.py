@@ -1,8 +1,11 @@
 from datetime import datetime
+from typing import Any
 
 from app.crud.base import CrudBase
 from app.models.user import User
 from app.schemas import UserCreate, UserUpdate
+from asyncpg.exceptions import UniqueViolationError
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 # async def create_user(db: AsyncSession, user: UserCreate) -> User:
@@ -21,7 +24,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class CrudUser(CrudBase[User, UserCreate, UserUpdate]):
-    async def create(self, db: AsyncSession, *, user_in: UserCreate) -> User:
+    async def create(self, db: AsyncSession, *, user_in: UserCreate) -> Any:
         user_db = User(
             email=user_in.email,
             password=user_in.password,
@@ -31,11 +34,14 @@ class CrudUser(CrudBase[User, UserCreate, UserUpdate]):
         )
 
         # async with db.begin():
-        async with db.begin():
-            db.add(user_db)
-            await db.flush()
-            db.expunge(user_db)
-            return user_db
+        try:
+            async with db.begin():
+                db.add(user_db)
+                await db.flush()
+                db.expunge(user_db)
+                return user_db
+        except (UniqueViolationError, IntegrityError) as e:
+            return {f"{e.detail}"}
 
 
 user = CrudUser(User)

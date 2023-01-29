@@ -35,8 +35,8 @@ async def create_user(
     *,
     db: AsyncSession = Depends(get_db),
     user_in: schemas.UserCreate,
-):
-    user = await crud.user.create(db, obj_in=user_in)
+) -> Any:
+    user = await crud.user.create(db, user_in=user_in)
     return JSONResponse(content=jsonable_encoder(user))
 
 
