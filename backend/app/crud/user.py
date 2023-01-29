@@ -21,21 +21,21 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class CrudUser(CrudBase[User, UserCreate, UserUpdate]):
-    async def create(self, db: AsyncSession, *, obj_in: UserCreate) -> User:
-        db_obj = User(
-            email=obj_in.email,
-            password=obj_in.password,
-            nickname=obj_in.nickname,
+    async def create(self, db: AsyncSession, *, user_in: UserCreate) -> User:
+        user_db = User(
+            email=user_in.email,
+            password=user_in.password,
+            nickname=user_in.nickname,
             is_superuser=False,
             create_time=int(datetime.now().timestamp()),
         )
 
         # async with db.begin():
         async with db.begin():
-            db.add(db_obj)
+            db.add(user_db)
             await db.flush()
-            db.expunge(db_obj)
-            return db_obj
+            db.expunge(user_db)
+            return user_db
 
 
 user = CrudUser(User)
