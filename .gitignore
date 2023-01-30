@@ -1,0 +1,4 @@
+__pycache__
+backend/.env
+backend/.vscode/launch.json
+backend/.vscode/settings.json
