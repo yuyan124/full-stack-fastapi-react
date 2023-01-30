@@ -1,0 +1,7 @@
+POST http://{{hostname}}/api/v1/user/
+
+{
+    "nickname": "Kimberly Gill",
+    "email":"1skidd@chang.com",
+    "password": "123456"
+}
