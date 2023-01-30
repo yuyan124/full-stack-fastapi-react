@@ -35,3 +35,4 @@ class User(UserDbBase):
 
 class UserInDb(UserDbBase):
     hashed_password: str
+
