@@ -20,4 +20,7 @@ SessionLocal: Callable[..., AsyncSession] = sessionmaker(
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with SessionLocal() as db:
-        yield db
+        try:
+            yield db
+        finally:
+            await db.close()

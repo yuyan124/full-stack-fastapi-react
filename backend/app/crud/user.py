@@ -1,10 +1,11 @@
 from datetime import datetime
-from typing import Any
+from typing import Any, Optional
 
 from app.crud.base import CrudBase
 from app.models.user import User
 from app.schemas import UserCreate, UserUpdate
 from asyncpg.exceptions import UniqueViolationError
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -42,6 +43,15 @@ class CrudUser(CrudBase[User, UserCreate, UserUpdate]):
                 return user_db
         except (UniqueViolationError, IntegrityError) as e:
             return {f"{e.detail}"}
+
+    async def get_by_email(self, db: AsyncSession, *, email: str) -> Optional[User]:
+        try:
+            async with db.begin():
+                sql = select(self.model).where(self.model.email == email)
+                r = await db.execute(sql)
+                return r.scalars().first()
+        except Exception:
+            print("here")
 
 
 user = CrudUser(User)

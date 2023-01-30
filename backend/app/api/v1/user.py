@@ -2,7 +2,9 @@ from typing import Any
 
 import pydantic
 from app import crud, schemas
+from app.errors import UserExist
 from app.providers.database import get_db
+from app.response.user import UserResponse
 from faker import Faker
 from fastapi import APIRouter, Depends
 from fastapi.encoders import jsonable_encoder
@@ -30,16 +32,22 @@ def read_users() -> JSONResponse:
     return JSONResponse(content=jsonable_encoder(create_fake_user(1)))
 
 
-@router.post("/", response_class=schemas.User)
+@router.post("/", response_class=UserResponse)
 async def create_user(
     *,
     db: AsyncSession = Depends(get_db),
     user_in: schemas.UserCreate,
 ) -> Any:
+    user = await crud.user.get_by_email(db, email=user_in.email)
+    if user:
+        raise UserExist
     user = await crud.user.create(db, user_in=user_in)
-    return JSONResponse(content=jsonable_encoder(user))
+    r = UserResponse(code=0, success=True, data=user)
+    return JSONResponse(content=jsonable_encoder(r))
 
 
-@router.get("/{user_id}", response_class=schemas.User)
-async def get_user(user_id: int) -> JSONResponse:
-    return JSONResponse(content=jsonable_encoder(create_fake_user(user_id)))
+@router.get("/{user_id}", response_class=UserResponse)
+async def get_user(user_id: int, db: AsyncSession = Depends(get_db)) -> JSONResponse:
+    user = await crud.user.get(db, id=user_id)
+    r = UserResponse(code=0, success=True, data=user)
+    return JSONResponse(content=jsonable_encoder(r))
