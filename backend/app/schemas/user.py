@@ -22,7 +22,7 @@ class UserUpdate(UserBase):
 class UserDbBase(UserBase):
     id: Optional[int] = None
     status: Optional[int] = None
-    create_time: Optional[str] = None
+    create_time: Optional[int] = None
 
     class Config:
         orm_mode = True
