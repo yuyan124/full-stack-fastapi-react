@@ -6,7 +6,6 @@ from pydantic import BaseModel, EmailStr
 
 class UserBase(BaseModel):
     email: Optional[EmailStr] = None
-    phone: Optional[str] = None
     is_superuser: bool = False
     nickname: Optional[str] = None
 
@@ -35,4 +34,3 @@ class User(UserDbBase):
 
 class UserInDb(UserDbBase):
     hashed_password: str
-
