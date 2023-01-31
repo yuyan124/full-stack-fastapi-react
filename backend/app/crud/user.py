@@ -26,23 +26,22 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 class CrudUser(CrudBase[User, UserCreate, UserUpdate]):
     async def create(self, db: AsyncSession, *, user_in: UserCreate) -> Any:
-        user_db = User(
-            email=user_in.email,
-            password=user_in.password,
-            nickname=user_in.nickname,
-            is_superuser=False,
-            create_time=int(datetime.now().timestamp()),
-        )
-
-        # async with db.begin():
         try:
             async with db.begin():
+                user_db = User(
+                    email=user_in.email,
+                    password=user_in.password,
+                    nickname=user_in.nickname,
+                    is_superuser=False,
+                    create_time=int(datetime.now().timestamp()),
+                )
                 db.add(user_db)
                 await db.flush()
                 db.expunge(user_db)
                 return user_db
         except (UniqueViolationError, IntegrityError) as e:
-            return {f"{e.detail}"}
+            # return {f"{e.detail}"}
+            return None
 
     async def get_by_email(self, db: AsyncSession, *, email: str) -> Optional[User]:
         try:
