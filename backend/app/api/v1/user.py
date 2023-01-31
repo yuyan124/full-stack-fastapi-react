@@ -27,12 +27,7 @@ def create_fake_user(id: int):
     }
 
 
-@router.get("/", response_class=schemas.User, response_model_exclude_unset=True)
-def read_users() -> JSONResponse:
-    return JSONResponse(content=jsonable_encoder(create_fake_user(1)))
-
-
-@router.post("/", response_class=UserResponse)
+@router.post("/", response_model=UserResponse)
 async def create_user(
     *,
     db: AsyncSession = Depends(get_db),
@@ -46,7 +41,7 @@ async def create_user(
     return JSONResponse(content=jsonable_encoder(r))
 
 
-@router.get("/{user_id}", response_class=UserResponse)
+@router.get("/{user_id}", response_model=UserResponse)
 async def get_user(user_id: int, db: AsyncSession = Depends(get_db)) -> JSONResponse:
     user = await crud.user.get(db, id=user_id)
     r = UserResponse(code=0, success=True, data=user)
