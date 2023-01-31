@@ -1,6 +1,6 @@
 import os
 import secrets
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 import pydantic
 from dotenv.main import load_dotenv
@@ -10,11 +10,18 @@ load_dotenv()
 
 class Setting(pydantic.BaseSettings):
     PROJECT_NAME: str = os.environ["PROJECT_NAME"]
-
     API_PREFIX: str = "/api/v1"
+
+    # ------------------------------------------
+    # security
+    # ------------------------------------------
     SECRET_KEY: str = secrets.token_urlsafe(32)
     # 60 minutes * 24 hours * 7 days
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
+
+    # ------------------------------------------
+    # database
+    # ------------------------------------------
 
     POSTGRESQL_SERVER: str = os.environ["POSTGRES_SERVER"]
     POSTGRESQL_USER: str = os.environ["POSTGRES_USER"]
@@ -38,6 +45,8 @@ class Setting(pydantic.BaseSettings):
         host=os.environ["POSTGRES_SERVER"],
         path=f"/{os.environ['POSTGRES_DB'] or ''}",
     )
+
+    CORS_ORIGINS: List[pydantic.AnyHttpUrl] = os.environ["CORS_ORIGINS"]
 
     class Config:
         case_sensitive = True
