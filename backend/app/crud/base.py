@@ -16,11 +16,10 @@ class CrudBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self.model = model
 
     async def get(self, db: AsyncSession, id: Any) -> Optional[ModelType]:
-        # return await db.
-        async with db.begin():
-            sql = select(self.model).where(self.model.id == id)
-            r = await db.execute(sql)
-            return r.fetchone()
+        # do not use db.begin(), if used, the result will be null.
+        sql = select(self.model).where(self.model.id == id)
+        r = await db.execute(sql)
+        return r.scalars().first()
 
     async def get_multi(
         self, db: AsyncSession, *, skip: int = 0, limit: int = 100
