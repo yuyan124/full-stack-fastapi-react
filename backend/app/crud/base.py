@@ -18,7 +18,6 @@ class CrudBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     async def get(self, db: AsyncSession, id: Any) -> Optional[ModelType]:
         # do not use db.begin(), if used, the result will be null.
         sql = select(self.model).where(self.model.id == id)
-        print(sql)
         r = await db.execute(sql)
         return r.scalars().first()
 
