@@ -1,11 +1,11 @@
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any, Dict, Optional, Union
 
 from app.crud.base import CrudBase
 from app.models.user import User
 from app.schemas import UserCreate, UserUpdate
 from asyncpg.exceptions import UniqueViolationError
-from sqlalchemy import select
+from sqlalchemy import select, text, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -50,7 +50,33 @@ class CrudUser(CrudBase[User, UserCreate, UserUpdate]):
                 r = await db.execute(sql)
                 return r.scalars().first()
         except Exception:
-            print("here")
+            db.rollback()
+
+    async def update(
+        self,
+        db: AsyncSession,
+        *,
+        id: int,
+        obj_in: Union[UserUpdate, Dict[str, Any]],
+    ) -> User:
+        async with db.begin():
+            user = await self.get(db, id)
+            if not user:
+                return None
+            user.email = obj_in.email
+            user.nickname = obj_in.nickname
+            await db.flush()
+            db.expunge(user)
+            return user
+
+        # sql = (
+        #     update(self.model)
+        #     .where(self.model.id == id)
+        #     .values(email=obj_in.email, nickname=obj_in.nickname)
+        # )
+        # sql = text(f"UPDATE \"user\" SET email = '{obj_in.email}' WHERE id = {id}")
+        # r = await db.execute(sql)
+        # return obj_in
 
 
 user = CrudUser(User)
