@@ -12,11 +12,9 @@ COPY --from=builder-image /usr/local/lib/python3.9/site-packages /usr/local/lib/
 
 # 设定目录, 拷贝本地代码
 WORKDIR /backend/
-COPY . ./backend
+COPY . /backend
 
-
-#ENV PYTHONPATH=/backend
 
 # 暴露端口
 EXPOSE 80
-CMD ["uvicorn", "main:app","--reload","--host", "0.0.0.0", "--port", "80"]
+CMD ["uvicorn", "main:app","--host", "0.0.0.0", "--port", "80"]
