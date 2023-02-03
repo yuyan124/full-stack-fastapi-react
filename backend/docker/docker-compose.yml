@@ -1,0 +1,29 @@
+version: '3'
+services:
+  db_postgres:
+    image: postgres:latest
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - 32769:5432
+    networks:
+      - backend
+  app_backend:
+    image: full-stack-backend
+    ports:
+      - 10000:80
+    depends_on:
+      - db_postgres
+    env_file:
+      - .env
+    build:
+      context: ./docker
+      dockerfile: .dockerfile
+    networks:
+      - backend
+
+networks:
+  backend:
+
+volumes:
+  db-data:
