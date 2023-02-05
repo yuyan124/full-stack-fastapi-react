@@ -18,7 +18,7 @@ class CrudUser(CrudBase[User, UserCreate, UserUpdate]):
                     email=user_in.email,
                     password=user_in.password,
                     nickname=user_in.nickname,
-                    is_superuser=False,
+                    is_superuser=user_in.is_superuser,
                     create_time=int(datetime.now().timestamp()),
                 )
                 db.add(user_db)

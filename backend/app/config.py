@@ -45,7 +45,12 @@ class Setting(pydantic.BaseSettings):
         host=os.environ["POSTGRES_SERVER"],
         path=f"/{os.environ['POSTGRES_DB'] or ''}",
     )
-
+    # ------------------------------------------
+    # database init
+    # ------------------------------------------
+    # email
+    SUPERUSER:pydantic.EmailStr = os.environ["SUPERUSER"]
+    SUPERUSER_PASSWORD:str = os.environ["SUPERUSER_PASSWORD"]
     CORS_ORIGINS: List[pydantic.AnyHttpUrl] = os.environ["CORS_ORIGINS"]
 
     class Config:
