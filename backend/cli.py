@@ -1,13 +1,13 @@
-from typer import Typer
-from app.providers.init_db import init_db
 from app.providers.database import SessionLocal
-from app.utils.coroutine import coro_wrap
+from app.providers.init_db import init_db
+from app.utils.coroutine import typer_async
+from typer import Typer
 
 db_app = Typer()
 
 
 @db_app.command()
-@coro_wrap
+@typer_async
 async def init() -> None:
     db = SessionLocal()
     print("start init db.")

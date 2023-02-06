@@ -1,8 +1,8 @@
-from functools import wraps
 import asyncio
+from functools import wraps
 
 
-def coro_wrap(f:callable):
+def typer_async(f: callable):
     @wraps(f)
     def wrapper(*args, **kwargs):
         return asyncio.run(f(*args, **kwargs))
