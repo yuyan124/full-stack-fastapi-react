@@ -12,3 +12,5 @@ faker==8.8.1
 typing==3.7.4.3
 bcrypt==3.2.0
 python-dotenv==0.21.0
+passlib==3.3.0
+python-jose==1.7.4
