@@ -92,6 +92,12 @@ class InvalidToken(ApiException):
     msg = "令牌失效"
 
 
+class IncorrectEmailOrPassword(ApiException):
+    status_code = 400
+    code = 2006
+    msg = "账号或密码错误。"
+
+
 class ExpiredToken(ApiException):
     status_code = 422
     code = 2006

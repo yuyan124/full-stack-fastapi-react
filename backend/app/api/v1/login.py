@@ -8,6 +8,8 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.providers import jwt
+from app.errors import IncorrectEmailOrPassword
 
 router = APIRouter()
 
@@ -16,7 +18,16 @@ router = APIRouter()
 async def token(
     db: AsyncSession = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()
 ) -> Any:
-    ...
+    user = await crud.user.auth(
+        db, email=form_data.username, password=form_data.password
+    )
+    if not user:
+        raise IncorrectEmailOrPassword
+    token = jwt.create_access_token("1")
+    return {
+        "token": token,
+        "token_type": "bearer",
+    }
 
 
 @router.post("/password-recovery/{email}")

@@ -8,6 +8,7 @@ from asyncpg.exceptions import UniqueViolationError
 from sqlalchemy import select, text, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.providers.crypto import check_password_hash
 
 
 class CrudUser(CrudBase[User, UserCreate, UserUpdate]):
@@ -31,10 +32,10 @@ class CrudUser(CrudBase[User, UserCreate, UserUpdate]):
 
     async def get_by_email(self, db: AsyncSession, *, email: str) -> Optional[User]:
         try:
-            async with db.begin():
-                sql = select(self.model).where(self.model.email == email)
-                r = await db.execute(sql)
-                return r.scalars().first()
+            # async with db.begin():
+            sql = select(self.model).where(self.model.email == email)
+            r = await db.execute(sql)
+            return r.scalars().first()
         except Exception:
             db.rollback()
 
@@ -63,6 +64,17 @@ class CrudUser(CrudBase[User, UserCreate, UserUpdate]):
         # sql = text(f"UPDATE \"user\" SET email = '{obj_in.email}' WHERE id = {id}")
         # r = await db.execute(sql)
         # return obj_in
+
+    async def auth(
+        self, db: AsyncSession, *, email: str, password: str
+    ) -> Optional[User]:
+        user = await self.get_by_email(db, email=email)
+        if not user:
+            return None
+
+        if not check_password_hash(password, user.password):
+            return None
+        return user
 
 
 user = CrudUser(User)
