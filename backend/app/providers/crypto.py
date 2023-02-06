@@ -53,7 +53,11 @@ class Bcrypt(object):
     def check_password_hash(self, password: str, password_hash: str):
         password_hash = self.unicode_to_bytes(password_hash)
         password = self.unicode_to_bytes(password)
-        return safe_str_cmp(bcrypt.hashpw(password, password_hash), password_hash)
+        rounds = self.rounds
+        prefix = self.unicode_to_bytes(self.prefix)
+
+        salt = bcrypt.gensalt(rounds=rounds, prefix=prefix)
+        return safe_str_cmp(bcrypt.hashpw(password, salt), password_hash)
 
 
 def generate_password_hash(password: str, rounds: int = None):
@@ -61,4 +65,4 @@ def generate_password_hash(password: str, rounds: int = None):
 
 
 def check_password_hash(password: str, password_hash: str):
-    return Bcrypt().check_password_hash(password_hash, password)
+    return Bcrypt().check_password_hash(password, password_hash)

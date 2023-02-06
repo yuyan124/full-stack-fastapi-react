@@ -24,5 +24,5 @@ class User(Base):
     def check_password(self, raw_pwd: str):
         if not self._password:
             return False
-        password_hash = str(generate_password_hash(self._password.encode("utf8")))
-        return check_password_hash(password_hash, self._password)
+        password_hash = generate_password_hash(self._password.encode("utf8"))
+        return check_password_hash(self._password, password_hash)
