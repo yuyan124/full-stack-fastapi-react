@@ -19,7 +19,7 @@ class User(Base):
 
     @password.setter
     def password(self, raw_pwd: str):
-        self._password = generate_password_hash(raw_pwd.encode("utf8"))
+        self._password = generate_password_hash(raw_pwd)
 
     def check_password(self, raw_pwd: str):
         return check_password(raw_pwd, self.password) if raw_pwd else False
