@@ -76,5 +76,14 @@ class CrudUser(CrudBase[User, UserCreate, UserUpdate]):
             return None
         return user
 
+    async def is_active(self, user: User) -> bool:
+        if user.status == 1:
+            return True
+        else:
+            return False
+        
+    async def is_superuser(self, user:User) -> bool:
+        return user.is_superuser
+
 
 user = CrudUser(User)

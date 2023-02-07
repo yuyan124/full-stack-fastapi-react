@@ -98,6 +98,12 @@ class IncorrectEmailOrPassword(ApiException):
     msg = "账号或密码错误。"
 
 
+class InactiveUser(ApiException):
+    status_code = 400
+    code = 2007
+    msg = "未激活的用户。"
+
+
 class ExpiredToken(ApiException):
     status_code = 422
     code = 2006

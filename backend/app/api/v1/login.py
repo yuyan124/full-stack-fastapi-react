@@ -1,7 +1,7 @@
 from typing import Any
-
+from datetime import timedelta
+from app.config import setting
 from app import crud, schemas
-from app.errors import UserExist, UserNotExist
 from app.providers.database import get_db
 from fastapi import APIRouter, Body, Depends
 from fastapi.encoders import jsonable_encoder
@@ -9,12 +9,12 @@ from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.providers import jwt
-from app.errors import IncorrectEmailOrPassword
+from app.errors import IncorrectEmailOrPassword, InactiveUser
 
 router = APIRouter()
 
 
-@router.post("/login/token")
+@router.post("/login/token", response_model=schemas.Token)
 async def token(
     db: AsyncSession = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()
 ) -> Any:
@@ -23,7 +23,12 @@ async def token(
     )
     if not user:
         raise IncorrectEmailOrPassword
-    token = jwt.create_access_token("1")
+    elif not crud.user.is_active(user):
+        raise InactiveUser
+
+    token = jwt.create_access_token(
+        user.id, timedelta(setting.ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
     return {
         "token": token,
         "token_type": "bearer",
