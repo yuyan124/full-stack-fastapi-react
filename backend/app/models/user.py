@@ -1,4 +1,4 @@
-from app.providers.crypto import check_password_hash, generate_password_hash
+from app.providers.crypto import check_password, generate_password_hash
 from sqlalchemy import Boolean, Column, Integer, SmallInteger, String
 
 from .base import Base
@@ -19,10 +19,7 @@ class User(Base):
 
     @password.setter
     def password(self, raw_pwd: str):
-        self._password = str(generate_password_hash(raw_pwd.encode("utf8")))
+        self._password = generate_password_hash(raw_pwd.encode("utf8"))
 
     def check_password(self, raw_pwd: str):
-        if not self._password:
-            return False
-        password_hash = generate_password_hash(self._password.encode("utf8"))
-        return check_password_hash(self._password, password_hash)
+        return check_password(raw_pwd, self.password) if raw_pwd else False
