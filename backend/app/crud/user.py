@@ -3,12 +3,12 @@ from typing import Any, Dict, Optional, Union
 
 from app.crud.base import CrudBase
 from app.models.user import User
+from app.providers.crypto import check_password
 from app.schemas import UserCreate, UserUpdate
 from asyncpg.exceptions import UniqueViolationError
 from sqlalchemy import select, text, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.providers.crypto import check_password_hash
 
 
 class CrudUser(CrudBase[User, UserCreate, UserUpdate]):
@@ -27,7 +27,6 @@ class CrudUser(CrudBase[User, UserCreate, UserUpdate]):
                 db.expunge(user_db)
                 return user_db
         except (UniqueViolationError, IntegrityError) as e:
-            # return {f"{e.detail}"}
             return None
 
     async def get_by_email(self, db: AsyncSession, *, email: str) -> Optional[User]:
@@ -72,7 +71,7 @@ class CrudUser(CrudBase[User, UserCreate, UserUpdate]):
         if not user:
             return None
 
-        if not check_password_hash(password, user.password):
+        if not check_password(password, user.password):
             return None
         return user
 
