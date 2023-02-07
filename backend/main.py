@@ -1,6 +1,8 @@
 import uvicorn
 from app import create_app
+from app.providers.log import init_logging
 
+# logger = init_logging()
 app = create_app()
 
 

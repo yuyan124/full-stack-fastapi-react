@@ -54,6 +54,8 @@ class Setting(pydantic.BaseSettings):
     SUPERUSER_PASSWORD: str = os.environ["SUPERUSER_PASSWORD"]
     CORS_ORIGINS: List[pydantic.AnyHttpUrl] = os.environ["CORS_ORIGINS"]
 
+    LOG_DIRECTORY = "logs/"
+
     class Config:
         case_sensitive = True
 
