@@ -16,7 +16,6 @@ class CrudBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self.model = model
 
     async def get(self, db: AsyncSession, id: Any) -> Optional[ModelType]:
-        # do not use db.begin(), if used, the result will be null.
         sql = select(self.model).where(self.model.id == id)
         r = await db.execute(sql)
         return r.scalars().first()
@@ -24,7 +23,6 @@ class CrudBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     async def get_multi(
         self, db: AsyncSession, *, skip: int = 0, limit: int = 100
     ) -> List[ModelType]:
-        # sql = select(self.model).offset(skip).limit(limit)
         sql = text(
             f'SELECT * FROM "{self.model.__tablename__}" LIMIT {limit} OFFSET {skip}'
         )
@@ -63,7 +61,6 @@ class CrudBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             return db_obj
 
     async def remove(self, db: AsyncSession, *, id: int) -> ModelType:
-        # async with db.begin():
         sql = select(self.model).where(self.model.id == id)
         r = db.execute(sql)
         original = r.scalars().first()

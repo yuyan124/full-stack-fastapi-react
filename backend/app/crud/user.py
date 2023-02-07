@@ -14,24 +14,24 @@ from sqlalchemy.ext.asyncio import AsyncSession
 class CrudUser(CrudBase[User, UserCreate, UserUpdate]):
     async def create(self, db: AsyncSession, *, user_in: UserCreate) -> Any:
         try:
-            async with db.begin():
-                user_db = User(
-                    email=user_in.email,
-                    password=user_in.password,
-                    nickname=user_in.nickname,
-                    is_superuser=user_in.is_superuser,
-                    create_time=int(datetime.now().timestamp()),
-                )
-                db.add(user_db)
-                await db.flush()
-                db.expunge(user_db)
-                return user_db
+            # async with db.begin():
+            user_db = User(
+                email=user_in.email,
+                password=user_in.password,
+                nickname=user_in.nickname,
+                is_superuser=user_in.is_superuser,
+                create_time=int(datetime.now().timestamp()),
+            )
+            db.add(user_db)
+            await db.flush()
+            db.expunge(user_db)
+            await db.commit()
+            return user_db
         except (UniqueViolationError, IntegrityError) as e:
             return None
 
     async def get_by_email(self, db: AsyncSession, *, email: str) -> Optional[User]:
         try:
-            # async with db.begin():
             sql = select(self.model).where(self.model.email == email)
             r = await db.execute(sql)
             return r.scalars().first()
@@ -45,15 +45,16 @@ class CrudUser(CrudBase[User, UserCreate, UserUpdate]):
         id: int,
         obj_in: Union[UserUpdate, Dict[str, Any]],
     ) -> User:
-        async with db.begin():
-            user = await self.get(db, id)
-            if not user:
-                return None
-            user.email = obj_in.email
-            user.nickname = obj_in.nickname
-            await db.flush()
-            db.expunge(user)
-            return user
+        # async with db.begin():
+        user = await self.get(db, id)
+        if not user:
+            return None
+        user.email = obj_in.email
+        user.nickname = obj_in.nickname
+        await db.flush()
+        db.expunge(user)
+        await db.commit()
+        return user
 
         # sql = (
         #     update(self.model)
