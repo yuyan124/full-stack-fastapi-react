@@ -30,13 +30,17 @@ class CrudBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return r.all()
 
     async def create(self, db: AsyncSession, *, obj_in: CreateSchemaType) -> ModelType:
-        json_data = jsonable_encoder(obj_in)
-        db_obj = self.model(**json_data)
-        async with db.begin():
+        try:
+            json_data = jsonable_encoder(obj_in)
+            db_obj = self.model(**json_data)
             db.add(db_obj)
             await db.flush()
             db.expunge(db_obj)
+            await db.commit()
             return db_obj
+        except Exception as e:
+            await db.rollback()
+        return None
 
     async def update(
         self,
@@ -54,11 +58,11 @@ class CrudBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         for filed in json_data:
             if filed in update_data:
                 setattr(db_obj, filed, update_data[filed])
-        async with db.begin():
-            db.add(db_obj)
-            await db.flush()
-            db.expunge(db_obj)
-            return db_obj
+        db.add(db_obj)
+        await db.flush()
+        db.expunge(db_obj)
+        await db.commit()
+        return db_obj
 
     async def remove(self, db: AsyncSession, *, id: int) -> ModelType:
         sql = select(self.model).where(self.model.id == id)
@@ -66,4 +70,6 @@ class CrudBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         original = r.scalars().first()
         db.delete(original)
         await db.flush()
+        db.expunge(original)
+        await db.commit()
         return original
