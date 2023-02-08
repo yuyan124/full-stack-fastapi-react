@@ -14,7 +14,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 class CrudUser(CrudBase[User, UserCreate, UserUpdate]):
     async def create(self, db: AsyncSession, *, user_in: UserCreate) -> Any:
         try:
-            # async with db.begin():
             user_db = User(
                 email=user_in.email,
                 password=user_in.password,
@@ -23,66 +22,31 @@ class CrudUser(CrudBase[User, UserCreate, UserUpdate]):
                 create_time=int(datetime.now().timestamp()),
             )
             db.add(user_db)
-            await db.flush()
-            db.expunge(user_db)
             await db.commit()
             return user_db
-        except (UniqueViolationError, IntegrityError) as e:
-            return None
+        except Exception as e:
+            await db.rollback()
+        return None
 
     async def get_by_email(self, db: AsyncSession, *, email: str) -> Optional[User]:
-        try:
-            sql = select(self.model).where(self.model.email == email)
-            r = await db.execute(sql)
-            return r.scalars().first()
-        except Exception:
-            db.rollback()
-
-    async def update(
-        self,
-        db: AsyncSession,
-        *,
-        id: int,
-        obj_in: Union[UserUpdate, Dict[str, Any]],
-    ) -> User:
-        # async with db.begin():
-        user = await self.get(db, id)
-        if not user:
-            return None
-        user.email = obj_in.email
-        user.nickname = obj_in.nickname
-        await db.flush()
-        db.expunge(user)
-        await db.commit()
-        return user
-
-        # sql = (
-        #     update(self.model)
-        #     .where(self.model.id == id)
-        #     .values(email=obj_in.email, nickname=obj_in.nickname)
-        # )
-        # sql = text(f"UPDATE \"user\" SET email = '{obj_in.email}' WHERE id = {id}")
-        # r = await db.execute(sql)
-        # return obj_in
+        sql = select(self.model).where(self.model.email == email)
+        r = await db.execute(sql)
+        return r.scalars().first()
 
     async def auth(
         self, db: AsyncSession, *, email: str, password: str
     ) -> Optional[User]:
         user = await self.get_by_email(db, email=email)
+
         if not user:
             return None
 
-        if not check_password(password, user.password):
-            return None
-        return user
+        return user if check_password(password, user.password) else None
 
     async def is_active(self, user: User) -> bool:
-        if user.status == 1:
-            return True
-        else:
-            return False
-        
-    async def is_superuser(self, user:User) -> bool:
+        return user.status == 1
+
+    async def is_superuser(self, user: User) -> bool:
         return user.is_superuser
 
 
