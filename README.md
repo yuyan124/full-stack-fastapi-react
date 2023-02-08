@@ -1,4 +1,5 @@
 # full-stack-fastapi-react
+
 Full stack, Web App Generator. Using FastAPI, React, Docker and more.
 
 
@@ -12,7 +13,7 @@ Full stack, Web App Generator. Using FastAPI, React, Docker and more.
 * :key: `Secure password` hashing use bcrypt.
 * :lock: `JWT token` authentication.
 * 🛠️ `SQLAlchemy` models.
-* :person_frowning: Basic starting models for users.
+* :man: Basic starting models for users.
 * :children_crossing: CORS
 * :rainbow: `React` frontend:
   * ⚡️ using `Vite`, The next generation frontend tooling. It's fast!
