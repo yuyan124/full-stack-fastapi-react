@@ -1,6 +1,5 @@
 from app.config import setting
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 
 app_version = "0.0.1"
 
@@ -39,6 +38,31 @@ def register_exception_handler(app: FastAPI) -> None:
         )
 
 
+def register_middleware(app: FastAPI):
+    from fastapi.middleware.cors import CORSMiddleware
+
+    origins = setting.CORS_ORIGINS
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    # 强制请求协议为HTTPS
+    # from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
+    # app.add_middleware(HTTPSRedirectMiddleware)
+
+    # 避免 HTTP Host Header攻击
+    # from fastapi.middleware.trustedhost import TrustedHostMiddleware
+    # app.add_middleware(TrustedHostMiddleware, allow_hosts=[*.example.com])
+
+    # 请求头Accept-Encoding带有gzip，GZipMiddleware负责完成相应的返回结果处理。
+    # from fastapi.middleware.gzip import GZipMiddleware
+    # app.add_middleware(GZipMiddleware, minimum_size=1000)
+
+
 def register_plugin():
     from app.models.base import Base
     from app.providers.database import engine
@@ -46,8 +70,9 @@ def register_plugin():
     # Base.metadata.create_all(bind=engine)
 
 
-def carete_app() -> FastAPI:
+def create_app() -> FastAPI:
     app = FastAPI(version=app_version)
+    register_middleware(app)
     register_router(app)
     register_exception_handler(app)
     register_plugin()

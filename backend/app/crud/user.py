@@ -1,57 +1,53 @@
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any, Dict, Optional, Union
 
 from app.crud.base import CrudBase
 from app.models.user import User
+from app.providers.crypto import check_password
 from app.schemas import UserCreate, UserUpdate
 from asyncpg.exceptions import UniqueViolationError
-from sqlalchemy import select
+from sqlalchemy import select, text, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-
-# async def create_user(db: AsyncSession, user: UserCreate) -> User:
-#     db_user = User(
-#         email=user.email,
-#         password=user.password,
-#         nickname=user.nickname,
-#         create_time=int(datetime.now().timestamp()),
-#     )
-#     async with db.begin():
-#         db.add(db_user)
-#         await db.commit()
-#         # await db.refresh(db_user)
-#         db.expunge(db_user)
-#         return db_user
 
 
 class CrudUser(CrudBase[User, UserCreate, UserUpdate]):
     async def create(self, db: AsyncSession, *, user_in: UserCreate) -> Any:
-        user_db = User(
-            email=user_in.email,
-            password=user_in.password,
-            nickname=user_in.nickname,
-            is_superuser=False,
-            create_time=int(datetime.now().timestamp()),
-        )
-
-        # async with db.begin():
         try:
-            async with db.begin():
-                db.add(user_db)
-                await db.flush()
-                db.expunge(user_db)
-                return user_db
-        except (UniqueViolationError, IntegrityError) as e:
-            return {f"{e.detail}"}
+            user_db = User(
+                email=user_in.email,
+                password=user_in.password,
+                nickname=user_in.nickname,
+                is_superuser=user_in.is_superuser,
+                create_time=int(datetime.now().timestamp()),
+            )
+            db.add(user_db)
+            await db.commit()
+            return user_db
+        except Exception as e:
+            await db.rollback()
+        return None
 
     async def get_by_email(self, db: AsyncSession, *, email: str) -> Optional[User]:
-        try:
-            async with db.begin():
-                sql = select(self.model).where(self.model.email == email)
-                r = await db.execute(sql)
-                return r.scalars().first()
-        except Exception:
-            print("here")
+        sql = select(self.model).where(self.model.email == email)
+        r = await db.execute(sql)
+        return r.scalars().first()
+
+    async def auth(
+        self, db: AsyncSession, *, email: str, password: str
+    ) -> Optional[User]:
+        user = await self.get_by_email(db, email=email)
+
+        if not user:
+            return None
+
+        return user if check_password(password, user.password) else None
+
+    async def is_active(self, user: User) -> bool:
+        return user.status == 1
+
+    async def is_superuser(self, user: User) -> bool:
+        return user.is_superuser
 
 
 user = CrudUser(User)

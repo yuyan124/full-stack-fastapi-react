@@ -1,7 +1,9 @@
 import uvicorn
-from app import carete_app
+from app import create_app
+from app.providers.log import init_logging
 
-app = carete_app()
+# logger = init_logging()
+app = create_app()
 
 
 if __name__ == "__main__":

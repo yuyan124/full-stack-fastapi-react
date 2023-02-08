@@ -68,33 +68,57 @@ class UserExist(ApiException):
     msg = "用户已存在！"
 
 
-class NicknameExist(ApiException):
+class UserNotExist(ApiException):
     status_code = 200
     code = 2002
+    msg = "用户不存在！"
+
+
+class NicknameExist(ApiException):
+    status_code = 200
+    code = 2003
     msg = "昵称已存在"
 
 
 class ParameterValid(ApiException):
     status_code = 400
-    code = 2003
+    code = 2004
     msg = "参数验证失败."
 
 
 class InvalidToken(ApiException):
     status_code = 401
-    code = 2004
+    code = 2005
     msg = "令牌失效"
 
 
 class ExpiredToken(ApiException):
     status_code = 422
-    code = 2005
+    code = 2006
     msg = "令牌过期"
+
+
+class IncorrectEmailOrPassword(ApiException):
+    status_code = 400
+    code = 2007
+    msg = "账号或密码错误。"
+
+
+class InactiveUser(ApiException):
+    status_code = 400
+    code = 2008
+    msg = "未激活的用户。"
+
+
+class PermissionDenied(ApiException):
+    status_code = 400
+    code = 2009
+    msg = "没有足够的权限。"
 
 
 class AuthFailed(ApiException):
     status_code = 401
-    error_code = 2006
+    error_code = 2007
     msg = "认证失败!"
     headers = {"WWW-Authenticate": "Bearer"}
 
