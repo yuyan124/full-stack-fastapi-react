@@ -87,7 +87,7 @@ class ParameterValid(ApiException):
 
 
 class InvalidToken(ApiException):
-    status_code = 401
+    status_code = 403
     code = 2005
     msg = "令牌失效"
 
@@ -118,7 +118,7 @@ class PermissionDenied(ApiException):
 
 class AuthFailed(ApiException):
     status_code = 401
-    error_code = 2007
+    error_code = 2010
     msg = "认证失败!"
     headers = {"WWW-Authenticate": "Bearer"}
 
