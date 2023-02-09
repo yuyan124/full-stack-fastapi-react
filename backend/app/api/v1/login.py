@@ -1,16 +1,17 @@
 from datetime import timedelta
 from typing import Any
 
-from app import crud, schemas
-from app.config import setting
-from app.errors import InactiveUser, IncorrectEmailOrPassword
-from app.providers import jwt
-from app.providers.database import get_db
 from fastapi import APIRouter, Body, Depends
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app import crud, schemas
+from app.config import setting
+from app.errors import InactiveUser, IncorrectEmailOrPassword
+from app.providers import jwt
+from app.providers.database import get_db
 
 router = APIRouter()
 
@@ -45,7 +46,7 @@ async def token(
         user.id, timedelta(setting.ACCESS_TOKEN_EXPIRE_MINUTES)
     )
     return {
-        "token": token,
+        "access_token": token,
         "token_type": "bearer",
     }
 
