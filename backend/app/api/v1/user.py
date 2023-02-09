@@ -1,15 +1,17 @@
 from typing import Any
 
 import pydantic
-from app import crud, schemas
-from app.errors import PermissionDenied, UserExist, UserNotExist
-from app.providers.database import get_db
-from app.response.user import UserListResponse, UserResponse
 from faker import Faker
 from fastapi import APIRouter, Depends
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app import crud, models, schemas
+from app.api import depends
+from app.errors import PermissionDenied, UserExist, UserNotExist
+from app.providers.database import get_db
+from app.response.user import UserListResponse, UserResponse
 
 router = APIRouter()
 
@@ -73,6 +75,13 @@ async def get_users(
     r = UserListResponse(code=0, success=True, data=users)
     return JSONResponse(content=jsonable_encoder(r))
 
+@router.get("/me", response_model=UserResponse)
+def get_user_me(
+    db: AsyncSession = Depends(get_db),
+    current_user: models.User = Depends(depends.get_current_user)
+) -> JSONResponse:
+    r = UserResponse(code=0, success=True, data=current_user)
+    return JSONResponse(content=jsonable_encoder(r))
 
 @router.get("/{user_id}", response_model=UserResponse)
 async def get_user(user_id: int, db: AsyncSession = Depends(get_db)) -> JSONResponse:
@@ -94,6 +103,7 @@ async def get_user(user_id: int, db: AsyncSession = Depends(get_db)) -> JSONResp
         raise UserNotExist
     r = UserResponse(code=0, success=True, data=user)
     return JSONResponse(content=jsonable_encoder(r))
+
 
 
 @router.put("/{user_id}", response_model=UserResponse)
@@ -120,3 +130,6 @@ async def update_user(
     user = await crud.user.update(db, db_obj=user, obj_in=user_in)
     r = UserResponse(code=0, success=True, data=user)
     return JSONResponse(content=jsonable_encoder(r))
+
+
+    
