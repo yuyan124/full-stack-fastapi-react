@@ -1,17 +1,16 @@
 from typing import Any
 
 import pydantic
-from faker import Faker
-from fastapi import APIRouter, Depends
-from fastapi.encoders import jsonable_encoder
-from fastapi.responses import JSONResponse
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app import crud, models, schemas
 from app.api import depends
 from app.errors import PermissionDenied, UserExist, UserNotExist
 from app.providers.database import get_db
 from app.response.user import UserListResponse, UserResponse
+from faker import Faker
+from fastapi import APIRouter, Depends
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
 
@@ -34,6 +33,7 @@ async def create_user(
     *,
     db: AsyncSession = Depends(get_db),
     user_in: schemas.UserCreate,
+    current_user: models.User = Depends(depends.get_current_superuser)
 ) -> JSONResponse:
     """
     创建新用户
@@ -58,7 +58,10 @@ async def create_user(
 
 @router.get("/", response_model=UserListResponse)
 async def get_users(
-    db: AsyncSession = Depends(get_db), skip: int = 0, limit: int = 100
+    db: AsyncSession = Depends(get_db),
+    skip: int = 0,
+    limit: int = 100,
+    current_user: models.User = Depends(depends.get_current_superuser),
 ) -> JSONResponse:
     """
     批量读取用户。
@@ -75,16 +78,22 @@ async def get_users(
     r = UserListResponse(code=0, success=True, data=users)
     return JSONResponse(content=jsonable_encoder(r))
 
+
 @router.get("/me", response_model=UserResponse)
 def get_user_me(
     db: AsyncSession = Depends(get_db),
-    current_user: models.User = Depends(depends.get_current_user)
+    current_user: models.User = Depends(depends.get_current_active_user),
 ) -> JSONResponse:
     r = UserResponse(code=0, success=True, data=current_user)
     return JSONResponse(content=jsonable_encoder(r))
 
+
 @router.get("/{user_id}", response_model=UserResponse)
-async def get_user(user_id: int, db: AsyncSession = Depends(get_db)) -> JSONResponse:
+async def get_user(
+    user_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: models.User = Depends(depends.get_current_active_user),
+) -> JSONResponse:
     """
     通过user_id获取特定用户信息。
 
@@ -101,14 +110,20 @@ async def get_user(user_id: int, db: AsyncSession = Depends(get_db)) -> JSONResp
     user = await crud.user.get(db, id=user_id)
     if not user:
         raise UserNotExist
+    if not crud.user.is_superuser(current_user):
+        raise PermissionDenied
+
     r = UserResponse(code=0, success=True, data=user)
     return JSONResponse(content=jsonable_encoder(r))
 
 
-
 @router.put("/{user_id}", response_model=UserResponse)
 async def update_user(
-    *, db: AsyncSession = Depends(get_db), user_id: int, user_in: schemas.UserUpdate
+    *,
+    db: AsyncSession = Depends(get_db),
+    user_id: int,
+    user_in: schemas.UserUpdate,
+    current_user: models.User = Depends(depends.get_current_superuser)
 ) -> JSONResponse:
     """
     通过user_id更新用户信息
@@ -130,6 +145,3 @@ async def update_user(
     user = await crud.user.update(db, db_obj=user, obj_in=user_in)
     r = UserResponse(code=0, success=True, data=user)
     return JSONResponse(content=jsonable_encoder(r))
-
-
-    
