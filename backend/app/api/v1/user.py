@@ -1,16 +1,17 @@
 from typing import Any
 
 import pydantic
-from app import crud, models, schemas
-from app.api import depends
-from app.errors import PermissionDenied, UserExist, UserNotExist
-from app.providers.database import get_db
-from app.response.user import UserListResponse, UserResponse
 from faker import Faker
 from fastapi import APIRouter, Depends
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app import crud, models, schemas
+from app.api import depends
+from app.errors import PermissionDenied, UserExist, UserNotExist
+from app.providers.database import get_db
+from app.response.user import UserListResponse, UserResponse
 
 router = APIRouter()
 
@@ -102,16 +103,22 @@ async def get_user(
         db: 数据库session. Defaults to Depends(get_db).
 
     @raise:
+        PermissionDenied: 权限不足
         UserNotExist: 用户不存在
 
     @return:
         JSONResponse: 成功返回用户信息，失败返回错误码及错误信息。
     """
     user = await crud.user.get(db, id=user_id)
-    if not user:
-        raise UserNotExist
+    if user == current_user:
+        r = UserResponse(code=0, success=True, data=user)
+        return JSONResponse(content=jsonable_encoder(r))
+
     if not crud.user.is_superuser(current_user):
         raise PermissionDenied
+
+    if not user:
+        raise UserNotExist
 
     r = UserResponse(code=0, success=True, data=user)
     return JSONResponse(content=jsonable_encoder(r))
