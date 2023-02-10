@@ -39,7 +39,7 @@ async def token(
     )
     if not user:
         raise IncorrectEmailOrPassword
-    elif not await crud.user.is_active(user):
+    elif not crud.user.is_active(user):
         raise InactiveUser
 
     token = jwt.create_access_token(

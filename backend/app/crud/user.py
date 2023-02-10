@@ -1,14 +1,15 @@
 from datetime import datetime
 from typing import Any, Dict, Optional, Union
 
-from app.crud.base import CrudBase
-from app.models.user import User
-from app.providers.crypto import check_password
-from app.schemas import UserCreate, UserUpdate
 from asyncpg.exceptions import UniqueViolationError
 from sqlalchemy import select, text, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.crud.base import CrudBase
+from app.models.user import User
+from app.providers.crypto import check_password
+from app.schemas import UserCreate, UserUpdate
 
 
 class CrudUser(CrudBase[User, UserCreate, UserUpdate]):
@@ -43,10 +44,10 @@ class CrudUser(CrudBase[User, UserCreate, UserUpdate]):
 
         return user if check_password(password, user.password) else None
 
-    async def is_active(self, user: User) -> bool:
+    def is_active(self, user: User) -> bool:
         return user.status == 1
 
-    async def is_superuser(self, user: User) -> bool:
+    def is_superuser(self, user: User) -> bool:
         return user.is_superuser
 
 
