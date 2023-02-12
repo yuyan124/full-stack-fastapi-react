@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import crud, models, schemas
 from app.api import depends
-from app.errors import PermissionDenied, UserExist, UserNotExist
+from app.errors import Forbidden, UserExist, UserNotExist
 from app.providers.database import get_db
 from app.response import response_ok
 from app.response.user import UserListResponse, UserResponse
@@ -97,7 +97,7 @@ async def get_user(
         db: 数据库session. Defaults to Depends(get_db).
 
     @raise:
-        PermissionDenied: 权限不足
+        Forbidden: 权限不足
         UserNotExist: 用户不存在
 
     @return:
@@ -108,7 +108,7 @@ async def get_user(
         return response_ok(UserResponse, user)
 
     if not crud.user.is_superuser(current_user):
-        raise PermissionDenied
+        raise Forbidden
 
     if not user:
         raise UserNotExist

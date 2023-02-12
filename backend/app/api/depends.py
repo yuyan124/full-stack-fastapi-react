@@ -8,10 +8,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app import crud, models, schemas
 from app.config import setting
 from app.errors import (
-    AuthFailed,
     ExpiredToken,
     InactiveUser,
     PermissionDenied,
+    Unauthorized,
     UserNotExist,
 )
 from app.providers.database import get_db
@@ -28,7 +28,7 @@ async def get_current_user(
     except ExpiredSignatureError:
         raise ExpiredToken
     except (ValidationError, JWTError):
-        raise AuthFailed
+        raise Unauthorized
 
     user = await crud.user.get(db, id=data.sub)
     if not user:

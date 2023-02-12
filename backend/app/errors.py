@@ -48,11 +48,13 @@ class Unauthorized(ApiException):
     status_code = 401
     code = 1011
     msg = "未经授权的许可"
+    headers = {"WWW-Authenticate": "Bearer"}
 
 
 class Forbidden(ApiException):
     status_code = 403
     code = 1012
+    # Permission Denied
     msg = "失败！当前访问没有权限，或操作的数据没权限!"
 
 
@@ -108,19 +110,6 @@ class InactiveUser(ApiException):
     status_code = 400
     code = 2008
     msg = "未激活的用户。"
-
-
-class PermissionDenied(ApiException):
-    status_code = 400
-    code = 2009
-    msg = "没有足够的权限。"
-
-
-class AuthFailed(ApiException):
-    status_code = 401
-    error_code = 2010
-    msg = "认证失败!"
-    headers = {"WWW-Authenticate": "Bearer"}
 
 
 class PasswordLengthError(PydanticValueError):
