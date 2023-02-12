@@ -1,13 +1,14 @@
+from faker import Faker
+from fastapi import APIRouter, Depends
+from fastapi.responses import JSONResponse
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app import crud, models, schemas
 from app.api import depends
 from app.errors import PermissionDenied, UserExist, UserNotExist
 from app.providers.database import get_db
 from app.response import response_ok
 from app.response.user import UserListResponse, UserResponse
-from faker import Faker
-from fastapi import APIRouter, Depends
-from fastapi.responses import JSONResponse
-from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
 
