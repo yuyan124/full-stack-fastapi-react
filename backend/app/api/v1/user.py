@@ -1,17 +1,13 @@
-from typing import Any
-
-import pydantic
-from faker import Faker
-from fastapi import APIRouter, Depends
-from fastapi.encoders import jsonable_encoder
-from fastapi.responses import JSONResponse
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app import crud, models, schemas
 from app.api import depends
 from app.errors import PermissionDenied, UserExist, UserNotExist
 from app.providers.database import get_db
+from app.response import response_ok
 from app.response.user import UserListResponse, UserResponse
+from faker import Faker
+from fastapi import APIRouter, Depends
+from fastapi.responses import JSONResponse
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
 
@@ -53,8 +49,7 @@ async def create_user(
     if user:
         raise UserExist
     user = await crud.user.create(db, user_in=user_in)
-    r = UserResponse(code=0, success=True, data=user)
-    return JSONResponse(content=jsonable_encoder(r))
+    return response_ok(UserResponse, user)
 
 
 @router.get("/", response_model=UserListResponse)
@@ -76,8 +71,7 @@ async def get_users(
         JSONResponse: 成功返回用户信息。
     """
     users = await crud.user.get_multi(db, skip=skip, limit=limit)
-    r = UserListResponse(code=0, success=True, data=users)
-    return JSONResponse(content=jsonable_encoder(r))
+    return response_ok(UserListResponse, users)
 
 
 @router.get("/me", response_model=UserResponse)
@@ -85,8 +79,7 @@ def get_user_me(
     db: AsyncSession = Depends(get_db),
     current_user: models.User = Depends(depends.get_current_active_user),
 ) -> JSONResponse:
-    r = UserResponse(code=0, success=True, data=current_user)
-    return JSONResponse(content=jsonable_encoder(r))
+    return response_ok(UserResponse, current_user)
 
 
 @router.get("/{user_id}", response_model=UserResponse)
@@ -111,8 +104,7 @@ async def get_user(
     """
     user = await crud.user.get(db, id=user_id)
     if user == current_user:
-        r = UserResponse(code=0, success=True, data=user)
-        return JSONResponse(content=jsonable_encoder(r))
+        return response_ok(UserResponse, user)
 
     if not crud.user.is_superuser(current_user):
         raise PermissionDenied
@@ -120,8 +112,7 @@ async def get_user(
     if not user:
         raise UserNotExist
 
-    r = UserResponse(code=0, success=True, data=user)
-    return JSONResponse(content=jsonable_encoder(r))
+    return response_ok(UserResponse, user)
 
 
 @router.put("/{user_id}", response_model=UserResponse)
@@ -150,5 +141,4 @@ async def update_user(
     if not user:
         raise UserNotExist
     user = await crud.user.update(db, db_obj=user, obj_in=user_in)
-    r = UserResponse(code=0, success=True, data=user)
-    return JSONResponse(content=jsonable_encoder(r))
+    return response_ok(UserResponse, user)
