@@ -13,19 +13,6 @@ from app.response.user import UserListResponse, UserResponse
 router = APIRouter()
 
 
-def create_fake_user(id: int):
-    faker = Faker(locals="zh-CN")
-    return {
-        "email": faker.email(),
-        "phone": faker.phone_number(),
-        "is_superuser": True,
-        "nickname": faker.name(),
-        "id": id,
-        "status": 1,
-        "create_time": faker.date_time().strftime("%Y-%m-%d %H:%M:%S"),
-    }
-
-
 @router.post("/", response_model=UserResponse)
 async def create_user(
     *,
