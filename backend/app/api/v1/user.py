@@ -74,7 +74,7 @@ def get_user_me(
 
 
 @router.put("/me", response_model=UserResponse)
-def update_user_me(
+async def update_user_me(
     *,
     db: AsyncSession = Depends(get_db),
     password: str = Body(None),
@@ -84,14 +84,16 @@ def update_user_me(
 ) -> JSONResponse:
     current_user_json = jsonable_encoder(current_user)
     user_in = schemas.UserUpdate(**current_user_json)
+
     if password is not None:
         user_in.password = password
     if nickname is not None:
         user_in.nickname = nickname
     if email is not None:
         user_in.email = email
-    user = crud.user.update(db, db_obj=current_user, obj_in=user_in)
-    return response_ok(user)
+
+    user = await crud.user.update(db, db_obj=current_user, obj_in=user_in)
+    return response_ok(UserResponse, user)
 
 
 @router.get("/{user_id}", response_model=UserResponse)
@@ -157,19 +159,19 @@ async def update_user(
 
 
 @router.post("/register", response_model=UserResponse)
-def register_user(
+async def register_user(
     *,
     db: AsyncSession = Depends(get_db),
     password: str = Body(...),
     email: EmailStr = Body(...),
     nickname: str = Body(None),
 ) -> JSONResponse:
-    if user := crud.user.get_by_email(db, email=email):
+    if user := await crud.user.get_by_email(db, email=email):
         raise UserExist
 
     user_in = schemas.UserCreate(password=password, email=email, nickname=nickname)
-    user = crud.user.create(db, user_in=user_in)
-    if setting.EMAIL_ENABLED_CONFIRM:
-        # send confirm email.
-        ...
+    user = await crud.user.create(db, user_in=user_in)
+    # if setting.EMAIL_ENABLED_CONFIRM:
+    #     # send confirm email.
+    #     ...
     return response_ok(UserResponse, user)
