@@ -7,13 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import crud, models, schemas
 from app.config import setting
-from app.errors import (
-    ExpiredToken,
-    InactiveUser,
-    PermissionDenied,
-    Unauthorized,
-    UserNotExist,
-)
+from app.errors import ExpiredToken, Forbidden, InactiveUser, Unauthorized, UserNotExist
 from app.providers.database import get_db
 
 oauth2 = OAuth2PasswordBearer(tokenUrl=f"{setting.API_PREFIX}/login/token")
@@ -48,5 +42,5 @@ async def get_current_superuser(
     current_user: models.User = Depends(get_current_user),
 ) -> models.User:
     if not crud.user.is_superuser(current_user):
-        raise PermissionDenied
+        raise Forbidden
     return current_user
