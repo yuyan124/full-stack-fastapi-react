@@ -56,6 +56,8 @@ class Setting(pydantic.BaseSettings):
 
     LOG_DIRECTORY = "logs/"
 
+    EMAIL_ENABLED_CONFIRM: bool = True
+
     class Config:
         case_sensitive = True
 
