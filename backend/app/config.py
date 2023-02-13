@@ -15,7 +15,7 @@ class Setting(pydantic.BaseSettings):
     # ------------------------------------------
     # security
     # ------------------------------------------
-    SECRET_KEY: str = secrets.token_urlsafe(32)
+    SECRET_KEY: str = os.environ["SECRET_KEY"]
     # 60 minutes * 24 hours * 7 days
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
     ALGORITHM = "HS256"
