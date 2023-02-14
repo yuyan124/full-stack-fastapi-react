@@ -20,6 +20,7 @@ class Setting(pydantic.BaseSettings):
     # 60 minutes * 24 hours * 7 days
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
     ALGORITHM = "HS256"
+    PASSWORD_RESET_TOKEN_EXPIRE_HOURS: int = 24
 
     # ------------------------------------------
     # database
