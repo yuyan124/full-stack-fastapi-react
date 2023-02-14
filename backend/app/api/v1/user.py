@@ -171,6 +171,7 @@ async def register_user(
 
     user_in = schemas.UserCreate(password=password, email=email, nickname=nickname)
     user = await crud.user.create(db, user_in=user_in)
+    # TODO: send confirm email.
     # if setting.EMAIL_ENABLED_CONFIRM:
     #     # send confirm email.
     #     ...
