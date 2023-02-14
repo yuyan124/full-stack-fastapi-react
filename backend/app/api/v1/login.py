@@ -21,7 +21,7 @@ async def token(
     db: AsyncSession = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()
 ) -> JSONResponse:
     """
-    OAuth2兼容的令牌登录，为未来的请求获取一个访问令牌。
+    OAuth2兼容的令牌登录, 为未来的请求获取一个访问令牌。
 
     @param:
         db: 数据库session. Defaults to Depends(get_db).
