@@ -19,10 +19,10 @@ async def get_current_user(
     try:
         payload = jwt.decode(token, setting.SECRET_KEY)
         data = schemas.TokenPayload(**payload)
-    except ExpiredSignatureError:
-        raise ExpiredToken
-    except (ValidationError, JWTError):
-        raise Unauthorized
+    except ExpiredSignatureError as e:
+        raise ExpiredToken from e
+    except (ValidationError, JWTError) as e:
+        raise Unauthorized from e
 
     user = await crud.user.get(db, id=data.sub)
     if not user:
