@@ -27,8 +27,9 @@ def send_email(
 
 
 def send_new_account_email(
-    receviers: Union[List[EmailStr], EmailStr], user: UserCreate
+    receviers: Union[List[EmailStr], EmailStr], 
+    #user: UserCreate
 ) -> None:
 
-    subject = f"{setting.PROJECT_NAME} - New Account for user {user.email}"
+    subject = f"Welcome to {setting.PROJECT_NAME}!"
     send_email(receviers, subject, "new_account.html")

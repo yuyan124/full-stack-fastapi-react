@@ -12,6 +12,7 @@ from app.errors import Forbidden, UserExist, UserNotExist
 from app.providers.database import get_db
 from app.response import response_ok
 from app.response.user import UserListResponse, UserResponse
+from app.providers.email import send_new_account_email
 
 router = APIRouter()
 
@@ -171,8 +172,8 @@ async def register_user(
 
     user_in = schemas.UserCreate(password=password, email=email, nickname=nickname)
     user = await crud.user.create(db, user_in=user_in)
-    # TODO: send confirm email.
-    # if setting.EMAIL_ENABLED_CONFIRM:
-    #     # send confirm email.
-    #     ...
+    if setting.EMAIL_ENABLED_CONFIRM:
+        send_new_account_email(user_in.email)
+        # TODO: send confirm email.
+        
     return response_ok(UserResponse, user)
