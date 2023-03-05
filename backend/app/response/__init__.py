@@ -11,3 +11,7 @@ def custom_response(
 ) -> JSONResponse:
     r = class_name(code=code, success=success, data=data)
     return JSONResponse(content=jsonable_encoder(r))
+
+
+def response_ok(class_name: Type[ResponseBase], data: Any) -> JSONResponse:
+    return custom_response(class_name, data, 0, True)

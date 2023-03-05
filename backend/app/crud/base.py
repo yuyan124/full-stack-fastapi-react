@@ -1,10 +1,11 @@
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
 
-from app.models.base import Base
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from sqlalchemy import select, text, update
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models.base import Base
 
 ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
@@ -58,6 +59,7 @@ class CrudBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         for filed in json_data:
             if filed in update_data:
                 setattr(db_obj, filed, update_data[filed])
+
         db.add(db_obj)
         await db.flush()
         db.expunge(db_obj)

@@ -1,6 +1,7 @@
+from fastapi import APIRouter, Depends, Request
+
 from app.api.v1 import login, user
 from app.providers.log import logger
-from fastapi import APIRouter, Depends, Request
 
 
 async def request_info(request: Request) -> None:

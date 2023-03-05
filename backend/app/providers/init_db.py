@@ -1,5 +1,6 @@
-from app import crud, schemas
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app import crud, schemas
 from app.config import setting
 
 

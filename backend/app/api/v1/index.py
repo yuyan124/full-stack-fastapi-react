@@ -1,7 +1,8 @@
-from app.providers.log import logger
 from fastapi import APIRouter
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
+
+from app.providers.log import logger
 
 router = APIRouter()
 
